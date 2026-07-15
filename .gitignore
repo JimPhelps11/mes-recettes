@@ -1,0 +1,40 @@
+# Environnements & logs
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+*.db-shm
+*.db-wal
+
+# Configs locales & secrets
+.env
+.env.example
+*.env.local
+.env.backup
+
+# Sauvegardes temporaires
+*.tar.gz
+_backup_*
+_archive_*
+
+# Fichiers transitifs
+*.swp
+.DS_Store
+*.bak*
+*.tmp
+*.old
+
+# Dossiers spécifiques à ignorer
+/static/audio
+/photos
+/uploads
+/htmlcov
+/.mypy_cache
+/.pytest_cache
+
+# Fichiers de compilation ou documents générés
+*.md.swp
+*.asciidoc
+
+# Pip / venv artifacts
+pip-selfcheck.json
