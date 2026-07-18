@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Menu</title>
+  <style>
+    body{margin:0;font-family:Arial;font-size:16px;background:#f7f7f7}
+    .container{padding:20px}
+    .progress{background:#fff;border-radius:8px;padding:12px;margin-bottom:1em}
+    .bar{height:6px;border-radius:3px;overflow:hidden;background:#f0ede8;margin-top:6px}
+    .fill{height:100%;width:0%;transition:width .5s}
+    .red{background:#d97a5e}
+    .orange{background:#e8a838}
+    .green{background:#4a7c5e}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3>🧪 Test Progression de saisie</h3>
+    
+    <div id="menu-content">
+      <p style="font-size:14px;color:#888">Menu vide</p>
+    </div>
+
+    <script>
+      // ---------- Données simulant menuJournalier ----------
+      let menuJournalier = {
+        'petit-dejeuner': ['café', 'pain grillé'],
+        'dejeuner': ['poulet rôti', 'riz', 'haricots verts'],
+        'diner': ['omelette', 'salade'],
+        'collation': []
+      };
+      // ----------------------------------------------------
+
+      const REPAS_MENU = ['petit-dejeuner','dejeuner','diner','collation'];
+
+      function getTotalPlats(){
+        let c=0;
+        for(const s of REPAS_MENU){
+          if(Array.isArray(menuJournalier[s])) c+=menuJournalier[s].length;
+        }
+        return c;
+      }
+
+      function renderMenu(){
+        const menuContent = document.getElementById('menu-content');
+        let j=0;
+        for(const s of REPAS_MENU)
+          if(Array.isArray(menuJournalier[s]) && menuJournalier[s].length) j++;
+        if(j===0 && getTotalPlats()===0) j=1;
+
+        const r=getTotalPlats();
+        const t=j*3;
+        const p=Math.min((r/(t||1))*100, 100);
+        let col='red';
+        if(p>=60) col='orange';
+        if(p>=100) col='green';
+
+        menuContent.innerHTML=`
+          <div class="progress">
+            <h4 style="margin:0 0 8px">📊 Progression de saisie. Repas planifiés</h4>
+            <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:bolder">
+              <span>Repas saisis :</span>
+              <span>${r} / ${t}</span>
+            </div>
+            <div class="bar"><div class="fill" id="bar-fill" style="width:${p}%" data-pct="${Math.round(p)}%"></div></div>
+            <p style="font-size:13px;margin:6px 0 2px;color:${col}">${p>=100?'🎉 Tout est planifié !' : 'Remplis '+r+'/'+t+' repas pour couvrir '+j+' jour'+(j>1?'s':'')}</p>
+            <small style="color:#888">Sur <b>${j}</b> jour${j>1?'s':''} actifs, 3 repas/jour</small>
+          </div>
+        `;
+
+        // Animation
+        setTimeout(()=>document.getElementById('bar-fill').style.width=p+'%',0);
+      }
+
+      // ---- Démo ----  
+      document.addEventListener('DOMContentLoaded', renderMenu);
+    </script>
+  </div>
+</body>
+</html>

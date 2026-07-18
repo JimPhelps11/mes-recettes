@@ -1,0 +1,116 @@
+{
+  "lundi": {
+    "petit-dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Petit déjeuner pain café skyr",
+        "fichier": "petit-déjeuner-pain-café-skyr"
+      }
+    ],
+    "dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Pizza Poivron Chorizo",
+        "fichier": "pizza-poivron-chorizo"
+      }
+    ],
+    "diner": [],
+    "collation": []
+  },
+  "mardi": {
+    "petit-dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Petit déjeuner pain café skyr",
+        "fichier": "petit-déjeuner-pain-café-skyr"
+      }
+    ],
+    "dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🤌🍅🫑😊 Mix Pates /Salade Légumes Antipasti",
+        "fichier": "mix-salade-pâtes"
+      }
+    ],
+    "diner": [
+      {
+        "type": "recette",
+        "titre": "🍅🫑😊 Légumes Antipasti",
+        "fichier": "légumes-antipasti"
+      }
+    ],
+    "collation": []
+  },
+  "mercredi": {
+    "petit-dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Petit déjeuner pain café skyr",
+        "fichier": "petit-déjeuner-pain-café-skyr"
+      }
+    ],
+    "dejeuner": [],
+    "diner": [],
+    "collation": [],
+    "activite": {
+      "fait": true,
+      "duree": 30
+    }
+  },
+  "jeudi": {
+    "petit-dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Petit déjeuner pain café skyr",
+        "fichier": "petit-déjeuner-pain-café-skyr"
+      }
+    ],
+    "dejeuner": [],
+    "diner": [],
+    "collation": []
+  },
+  "vendredi": {
+    "petit-dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Petit déjeuner pain café skyr",
+        "fichier": "petit-déjeuner-pain-café-skyr"
+      }
+    ],
+    "dejeuner": [],
+    "diner": [],
+    "collation": []
+  },
+  "samedi": {
+    "petit-dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Petit déjeuner pain café skyr",
+        "fichier": "petit-déjeuner-pain-café-skyr"
+      }
+    ],
+    "dejeuner": [],
+    "diner": [],
+    "collation": [],
+    "activite": {
+      "fait": true,
+      "duree": 40
+    }
+  },
+  "dimanche": {
+    "petit-dejeuner": [
+      {
+        "type": "recette",
+        "titre": "🍽️ Petit déjeuner pain café skyr",
+        "fichier": "petit-déjeuner-pain-café-skyr"
+      }
+    ],
+    "dejeuner": [],
+    "diner": [],
+    "collation": [],
+    "activite": {
+      "fait": true,
+      "duree": 40
+    }
+  }
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🧑‍🍳 Mes Recettes - Version Statique</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;margin:0;padding:20px;background:#f8f8f8;}
+    header{margin-bottom:24px;}
+    h1{color:#222;font-size:1.8em;margin:0 0 4px;}
+    .recettes{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;}
+    .recette{display:block;padding:10px 16px;background:#fff;border-radius:8px;text-decoration:none;color:#333;font-size:1rem;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:transform .1s;}
+    .recette:hover{transform:translateY(-2px);background:#f0f8ff;}
+    .stats{font-size:.88em;color:#666;margin-top:16px;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧑‍🍳 Mes Recettes (26 recettes)</h1>
+    <p class="stats">Version statique — aucune JavaScript bloquée en cours</p>
+  </header>
+
+  <div class="recettes">
+    <a class="recette" href="/recipes/1">🥩 Bœuf bourguignon</a>
+    <a class="recette" href="/recipes/2">🧀 Quiche Lorraine</a>
+    <a class="recette" href="/recipes/3">🥦 Velouté de brocolis</a>
+    <a class="recette" href="/recipes/4">🍮 Crème brûlée</a>
+    <a class="recette" href="/recipes/5">🥞 Pancakes</a>
+    <a class="recette" href="/id/'>Moussaka</a>
+    <a class="recette" href="/id/'>Tiramisu</a>
+    <a class="recette" href="/id/'>Gratin dauphinois</a>
+    <a class="recette" href="/id/'>Ratatouille</a>
+    <a class="recette" href="/id/'>Salade Niçoise</a>
+  </div>
+
+  <p class="stats">Serveur : ✅ Fonctionnel sur http://192.168.1.137:8000</p>
+</body>
+</html>

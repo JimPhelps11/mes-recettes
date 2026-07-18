@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Test Vision : Analyse d'Images de Plats</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        p.legend {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #3498db;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            border-color: #2980b9;
+            background: #e9f7fe;
+        }
+
+        .drop-zone.highlight {
+            border-color: #2ecc71;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .drop-zone img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto 40px;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #result {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 10px;
+            border-left: 4px solid #3498db;
+            display: none;
+        }
+
+        #analysis-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .ingredients-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .ingredient-item {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            transition: all 0.2s ease;
+        }
+
+        .ingredient-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .certitude {
+            font-size: 0.85em;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        .certitude.haute {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .certitude.moyenne {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .certitude.basse {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .stats-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-card strong {
+            color: #e74c3c;
+        }
+
+        .source-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(52,152,219,.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .image-thumb {
+            max-width: 150px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Vision Test — Analyse d'images de plats</h1>
+        <p class="legend">Dépose ou choisis une photo pour analyser ses ingrédients et quantités</p>
+
+        <div class="drop-zone" id="dropZone">
+            <p><strong>📷 Glisse/Dépose une image ici</strong><br>
+            ou clique pour sélectionner un fichier</p>
+            <input type="file" id="file-input" accept="image/*">
+            <div id="preview"></div>
+        </div>
+
+        <button id="analyzeBtn" disabled>🔍 Analyser cette image</button>
+
+        <div class="error-message" id="errorMessage">
+            ⚠️ Erreur critique : impossible de contacter le service d'analyse.
+        </div>
+
+        <div id="result">
+            <label class="analysis-label" id="analysisLabel">Résultat de l'analyse</label>
+            <div id="preview-chosen"></div>
+            <ul class="ingredients-list" id="ingredients"></ul>
+            <div class="stats-card">
+                <strong>Poids total estimé :</strong> <span id="total-estime">— g</span><br>
+                <strong>Source API :</strong> <span id="api-source">—</span>
+            </div>
+            <div class="source-label" id="sourceMeta"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+        const previewChosen = document.getElementById('preview-chosen');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resultDiv = document.getElementById('result');
+        const ingredientsList = document.getElementById('ingredients');
+        const totalEstime = document.getElementById('total-estime');
+        const apiSource = document.getElementById('api-source');
+        const sourceMeta = document.getElementById('sourceMeta');
+        const errorMessage = document.getElementById('errorMessage');
+        const analysisLabel = document.getElementById('analysisLabel');
+
+        let file = null;
+
+        // --- Event Listeners ---
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+
+        dropZone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropZone.classList.add('highlight');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('highlight');
+        });
+
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('highlight');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+
+        analyzeBtn.addEventListener('click', () => {
+            if (!file) return;
+            analyzeImage();
+        });
+
+        // --- Functions ---
+        function handleFileSelect() {
+            file = fileInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.innerHTML = `<img src="${e.target.result}" alt="Prévisualisation" class="image-thumb">`;
+                previewChosen.innerHTML = `<img src="${e.target.result}" alt="Photo choisie" style="max-width:100%; border-radius:8px;">`;
+                analyzeBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+            dropZone.innerHTML = `<p><strong>Photo choisie 📸</strong><br>Clique "Analyser" pour lancer le scan</p>`;
+        }
+
+        async function analyzeImage() {
+            analyzeBtn.innerHTML = `🔄 Envoi... <span class="loading"></span>`;
+            analyzeBtn.disabled = true;
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/vision/estimate_portion', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // Afficher le résultat
+                ingredientsList.innerHTML = '';
+                if (result.ingredient && result.ingredient.length > 0) {
+                    result.ingredient.forEach(ing => {
+                        const li = document.createElement('li');
+                        li.className = 'ingredient-item';
+                        li.innerHTML = `
+                            <strong>${ing.nom}</strong> — ${ing.quantite_g} g
+                            <span class="certitude ${ing.certitude}">${capitalize(ing.certitude)}</span>
+                        `;
+                        ingredientsList.appendChild(li);
+                    });
+                } else {
+                    ingredientsList.innerHTML = '<li style="color:#999; font-style:italic;">😕 Aucun ingrédient détecté.</li>';
+                }
+
+                totalEstime.textContent = result.total_estime_g || '0';
+                apiSource.textContent = result.source || 'inconnu';
+                sourceMeta.textContent = `Description: "${result.description || 'Aucune'}" • Notes: "${result.notes || 'Aucune'}"`;
+
+                resultDiv.style.display = 'block';
+                analysisLabel.textContent = 'Résultat de l’analyse';
+                errorMessage.style.display = 'none';
+
+            } catch (err) {
+                console.error(err);
+                errorMessage.style.display = 'block';
+                resultDiv.style.display = 'none';
+            } finally {
+                analyzeBtn.innerHTML = '🔍 Analyser cette image';
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>

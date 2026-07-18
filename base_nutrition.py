@@ -345,24 +345,43 @@ def chercher_aliments(terme: str, limit: int = 30, offset: int = 0) -> list[dict
     terme_norm = terme.replace(',', ' ').strip()
     terme_norm = re.sub(r'\s+', ' ', terme_norm)
 
-    rows = conn.execute("""
+    if terme.lower() in {
+        'charcuterie','jambon','saucisson','pâté','rillettes','bacon',
+        'produit laitier','fromage','lait','yaourt','crème fraîche','fromage blanc',
+        'produit transformé','plat','couscous','ravioli','quiche','lasagnes'
+    }:
+        if terme.lower() == 'charcuterie':
+            where_extra = " AND LOWER(ssss_groupe) IN ('jambon','saucisson','pâté') "
+        elif terme.lower() in ('produit laitier','fromage','yaourt','crème fraîche','fromage blanc'):
+            where_extra = " AND LOWER(ss_groupe) IN ('fromages','laitages','yaourts','crèmes') "
+        elif terme.lower() in {'produit transformé','plat','couscous','ravioli','quiche','lasagnes'}:
+            where_extra = " AND LOWER(groupe) LIKE '%plat%' OR LOWER(nom) LIKE '%prepar%' OR LOWER(ss_groupe) IN ('plats cuisinés','féculents transformés') "
+        else:
+            where_extra = ""
+    else:
+        where_extra = ""
+
+    rows = conn.execute(f"""
         SELECT code, nom, groupe, ss_groupe, energie_kcal, proteines_g,
-               lipides_g, glucides_g
+               lipides_g, glucides_g, fibres_g
         FROM aliments
-        WHERE nom_nettoye LIKE ?
-           OR nom LIKE ?
-           OR LOWER(nom) LIKE ?
-           OR LOWER(REPLACE(nom, ',', ' ')) LIKE ?
+        WHERE (nom_nettoye LIKE ? OR nom LIKE ?
+           OR LOWER(nom) LIKE ? OR LOWER(REPLACE(nom, ',', ' ')) LIKE ?
+           OR LOWER(groupe) LIKE ? OR LOWER(ss_groupe) LIKE ? OR LOWER(ssss_groupe) LIKE ?
+        ) {where_extra}
         ORDER BY
-            CASE WHEN LOWER(nom) = LOWER(?) THEN 0
-                 WHEN LOWER(REPLACE(nom, ',', ' ')) = ? THEN 1
-                 WHEN LENGTH(nom) < 30 THEN 2
-                 ELSE 3 END,
-            LENGTH(nom) ASC,
-            energie_kcal
+            CASE 
+                WHEN LOWER(nom) = LOWER(?) THEN 0
+                WHEN LOWER(REPLACE(nom, ',', ' ')) = ? THEN 1
+                WHEN LENGTH(nom) < 30 THEN 2
+                ELSE 3 END,
+            energie_kcal DESC
         LIMIT ? OFFSET ?
-    """, (f'%{terme}%', f'%{terme}%', f'%{terme.lower()}%',
-          f'%{terme_norm}%', terme, terme_norm, limit, offset)).fetchall()
+    """, (
+        f'%{terme}%', f'%{terme}%', f'%{terme.lower()}%', f'%{terme_norm}%',
+        f'%{terme.lower()}%', f'%{terme.lower()}%', f'%{terme.lower()}%',
+        terme, terme_norm, limit, offset
+    )).fetchall()
 
     resultats = [dict(r) for r in rows]
     conn.close()
@@ -423,12 +442,56 @@ MAPPING_MANUEL = {
     'herbes': 'herbes de provence',
     'persil': 'persil',
     'pâte': 'pâtes',
-    'sel': None,
-    'poivre': 'poivre',
-    'sel, poivre': None,
+    'pommes de terre': 'pomme de terre',
+    
+    'boeuf': 'Viande de bœuf, entrave, musculaire, crue',
+    'boeuf haché': 'Viande de bœuf, 5% MG, cuite',
+    'viande de boeuf': 'Viande de bœuf, 5% MG, cuite',
+    
+    'celeri': 'céleri',
+    'céleri branche': 'céleri branche',
+    
+    'tomates pelées': 'tomate, pulpe, en conserve',
+    'concentré de tomate': 'purée de tomate',
+    
+    
+    # Familles charcuterie/produits transformés (exclus du calcul de base brute après cuisson forte)
+    'vin rouge': 'vin rouge',  # alcoolique : souvent aluminium musculaire
+    
+    # Remplacement d'ingrédients CRU -> CUIT pour un matching plus précis
+    'boeuf': 'Viande de bœuf, entrave, musculaire, cuite',
+    'poulet': 'Viande de poulet, cuisse, sans peau, cuite',
+    ', côté traité': 'Viande de porc, filet, cuit',
     'gruyère': 'gruyère',
-    'noix de muscade': 'noix de muscade',
-    'eau': None,
+    'gruyère': 'gruyère',
+    'comté': 'comté',
+    'parmesan': 'parmesan',
+    'feta': 'feta',
+    'mozzarella': 'mozzarella',
+    'fromage blanc': 'Fromage blanc',  # pointe directement sur la ligne Ciqual pure
+    'yaourt': 'Yaourt nature',
+    'crème fraîche': 'crème fraîche épaisse',
+    'crème épaisse': 'crème fraîche épaisse',
+
+    # Familles ajoutées → seul mot-clé parent mappé pour chercher groupe (autres None ci-dessous)
+    'jambon': None,   # charcuterie
+    'saucisson': None,
+    'saucisse': None,
+    'pâté': None,
+    'rillettes': None,
+    'bacon': None,
+    
+    'feta': 'feta',
+    'mozzarella': 'mozzarella',
+
+    # Familles produits transformés mappées famille (None = chercher par nom
+    # car Ciqual groupe 'Plats cuisinés' ne contient pas lettre exacte)
+    'quiche': None,
+    'lasagnes': None,
+    'couscous': None,
+    'ravioli': None,
+    'pâté en croûte': None,
+
 }
 
 

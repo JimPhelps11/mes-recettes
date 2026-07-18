@@ -5,9 +5,11 @@ set -e
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# Charge la clé Gemini/Mistral si présente dans .env
+# Charge la clé Gemini/Mistral si présente dans .env (gère les commentaires en fin de ligne)
 if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs -d '\n' 2>/dev/null || true)
+  set -a
+  source .env
+  set +a
 fi
 
 exec .venv/bin/python3 webapp.py

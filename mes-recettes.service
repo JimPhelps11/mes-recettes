@@ -1,14 +1,28 @@
+# mes-recettes.service
+# Service systemd pour démarrer automatiquement webapp.py
+# Place-le dans /opt/data/home/recettes/ puis fait :
+# sudo cp mes-recettes.service /etc/systemd/system/
+# sudo systemctl enable mes-recettes  # → démarre au boot
+# sudo systemctl start mes-recettes   # → démarre maintenant
+# journalctl -u mes-recettes -f      # → logs en temps réel
+
 [Unit]
-Description=Mes Recettes - Web App
+Description=Application Mes-Recettes Flask
 After=network.target
 
 [Service]
 Type=simple
 User=hermes
 WorkingDirectory=/opt/data/home/recettes
-ExecStart=/opt/data/home/recettes/start.sh
-Restart=on-failure
-RestartSec=5
+Environment="PATH=/usr/bin:/bin:/opt/data/home/recettes/.venv/bin"
+ExecStart=/opt/data/home/recettes/.venv/bin/python3 /opt/data/home/recettes/webapp.py
+Restart=always              # redémarre si crash
+RestartSec=5                # attend 5s avant redémarrage (évite boucle infinie)
+StandardOutput=file:/opt/data/home/recettes/webapp.service.log
+StandardError=file:/opt/data/home/recettes/webapp.service.err
+
+# Sécurité : désactive les droits root pour éviter d’écraser autres services
+# Si besoin d'accéder au port 8000 : iptables ou bien configurer dans webapp.py host="0.0.0.0"
 
 [Install]
 WantedBy=multi-user.target

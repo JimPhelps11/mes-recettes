@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🧑‍🍳 Mes Recettes</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="/static/favicon.ico">
+</head>
+<body>
+
+  <!-- Header avec titre et barre de recherche -->
+  <div class="header" id="header">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1 style="margin:0;padding:0;font-size:clamp(1.5rem,8vw,2.5rem);color:#222">🧑‍🍳 Mes Recettes</h1>
+        <p id="header-sub" style="margin:4px 0 0;font-size:clamp(0.9rem,2vw,1rem);color:#555">14 recettes · base Ciqual 2025</p>
+      </div>
+      <span onclick="openHelp()" style="font-size:24px;cursor:pointer;opacity:0.7">ℹ️</span>
+    </div>
+    <div class="search-bar" style="border-radius:10px;background:#f5f5f5;border:1px solid #ddd;padding:6px 12px;margin-top:8px">
+      <span>🔍</span>
+      <input type="text" id="search-input" placeholder="🔎 Chercher par ingrédient… (ex: poireaux, oignon)" oninput="onSearchInput()">
+    </div>
+  </div>
+
+  <!-- Barre d'onglets (HEADER Nav) -->
+  <nav class="nav-bar" style="display:flex; overflow-x:auto; gap:4px; padding:4px; background:#f0f4f8; border-bottom:1px solid #0001">
+    <div class="tab active" data-tab="recipes" style="white-space:nowrap;padding:10px 14px;cursor:pointer;background:#fff;color:#444; border-radius:8px;font-weight:600">📖 Recettes</div>
+    <div class="tab" data-tab="menu" style="white-space:nowrap;padding:10px 14px;cursor:pointer;background:#fff;color:#444; border-radius:8px;font-weight:600">🍽️ Menu</div>
+    <div class="tab" data-tab="nutri" style="white-space:nowrap;padding:10px 14px;cursor:pointer;background:#fff;color:#444; border-radius:8px;font-weight:600">🔬 Nutri</div>
+    <div class="tab" data-tab="frigo" style="white-space:nowrap;padding:10px 14px;cursor:pointer;background:#fff;color:#444; border-radius:8px;font-weight:600">🧊 Frigo</div>
+    <div class="tab" data-tab="ciqual" style="white-space:nowrap;padding:10px 14px;cursor:pointer;background:#fff;color:#444; border-radius:8px;font-weight:600">📚 Ciqual</div>
+    <div class="tab" data-tab="semaine" style="white-space:nowrap;padding:10px 14px;cursor:pointer;background:#fff;color:#444; border-radius:8px;font-weight:600">📅 Semaine</div>
+    <div class="tab" data-tab="ia-vision" style="white-space:nowrap;padding:10px 14px;cursor:pointer;background:#fff;color:#444; border-radius:8px;font-weight:600">🤖 Assiette IA</div>
+  </nav>
+
+  <!-- Contenu des onglets -->
+  <div id="tab-recipes" class="tab-content active"><div class="recipes-list" id="recipes-list"><p class="loading">Chargement des recettes…</p></div></div>
+  <div id="tab-menu" class="tab-content"><div id="menu-content"><p class="loading">Chargement du menu…</p></div></div>
+  <div id="tab-nutri" class="tab-content"><div class="nutri-tab" id="nutri-content">
+    <div class="nutri-card">
+      <h2 style="margin:0 0 8px">🔬 Recherche nutritionnelle</h2>
+      <p style="font-size:clamp(0.9rem,2vw,1rem);color:#555;margin:0 0 12px">Trouve une recette par son profil cible fastoche.</p>
+      <div class="nutri-chips" id="nutri-chips"></div>
+    </div>
+    <div id="nutri-results"></div>
+  </div></div>
+  <div id="tab-frigo" class="tab-content"><div id="frigo-content"><p class="loading">Chargement du frigo…</p></div></div>
+  <div id="tab-ciqual" class="tab-content"><div id="ciqual-content" class="nutri-tab"><p class="loading">Exploration de la base Ciqual…</p></div></div>
+  <div id="tab-semaine" class="tab-content"><div id="semaine-content" style="padding-bottom:80px"><p class="loading">Chargement du planning hebdo…</p></div></div>
+
+  <!-- Assiette IA --- new -->
+  <div id="tab-ia-vision" class="tab-content" style="padding:0 1em"><div id="ia-vision-content">
+    <p style="margin-top:12px;font-size:1.1em">📸 Captue ou importe une photo d’assiette pour identifier les ingrédients et quantités.</p>
+    <label style="display:block;margin:16px 0">
+      <input type="file" id="ia-vision-upload" accept="image/jpeg, image/jpg, image/png" style="display:none">
+      <button onclick="document.getElementById('ia-vision-upload').click()" 
+              style="width:100%;padding:14px;border:2px dashed #999;border-radius:10px;background:#f9f9f9;cursor:pointer;font-size:1rem;">
+        📷 Importer une photo
+      </button>
+    </label>
+    <div id="ia-vision-drop" class="file-drop"  ondragover="event.preventDefault()" 
+         style="border:3px dashed #ccc;border-radius:12px;padding:50px;text-align:center;background:#fcfcfc;margin:16px 0;font-size:1.1em;color:#555">
+      📌 Glisser-déposer une photo ou appuie pour importer
+    </div>
+    <div id="ia-vision-result" style="margin:32px 0;display:none">
+      <h4 style="font-size:1.2em;margin-bottom:12px;">Résultat de l’analyse</h4>
+      <pre id="ia-vision-json" style="background:#f5f5f5;padding:12px;border-radius:8px;"></pre>
+      <div id="ia-vision-suggestions"></div>
+    </div>
+  </div></div>
+
+  <!-- Overlay de détail -->
+  <div id="detail-view" class="detail-view"></div>
+
+  <!-- Footer tabs (2e navegation) -->
+  <footer id="footer-nav" style="position:fixed; bottom:0; left:0; width:100%; padding:8px 0; background:#fff; border-top:1px solid #0001; display:flex; justify-content:space-around; z-index:99">
+    <button class="nav-item active" data-tab="recipes" style="border:none;background:transparent;cursor:pointer;font-size:.9em;color:#555"><span>📖</span><br>Recettes</button>
+    <button class="nav-item" data-tab="menu" style="border:none;background:transparent;cursor:pointer;font-size:.9em;color:#555"><span>🍽️</span><br>Menu</button>
+    <button class="nav-item" data-tab="nutri" style="border:none;background:transparent;cursor:pointer;font-size:.9em;color:#555"><span>🔬</span><br>Nutri</button>
+    <button class="nav-item" data-tab="frigo" style="border:none;background:transparent;cursor:pointer;font-size:.9em;color:#555"><span>🧊</span><br>Frigo</button>
+    <button class="nav-item" data-tab="ciqual" style="border:none;background:transparent;cursor:pointer;font-size:.9em;color:#555"><span>📚</span><br>Ciqual</button>
+    <button class="nav-item" data-tab="semaine" style="border:none;background:transparent;cursor:pointer;font-size:.9em;color:#555"><span>📅</span><br>Semaine</button>
+    <button class="nav-item" data-tab="ia-vision" style="border:none;background:transparent;cursor:pointer;font-size:.9em;color:#555"><span>🤖</span><br>Assiette IA</button>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/static/components/plate-simulate.js"></script>
+  <script src="/static/components/plate-analyzer.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
